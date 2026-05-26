@@ -4,6 +4,8 @@ import com.google.protobuf.ListValue;
 import com.google.protobuf.NullValue;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
+import io.grpc.netty.NegotiationType;
+import io.grpc.netty.NettyChannelBuilder;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
@@ -20,6 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
 
@@ -81,7 +84,43 @@ public abstract class PineconeConnection extends Task {
 
     protected Index getIndexConnection(RunContext runContext) throws IllegalVariableEvaluationException {
         var rIndexName = runContext.render(indexName).as(String.class).orElseThrow();
-        return buildClient(runContext).getIndexConnection(rIndexName);
+        var client = buildClient(runContext);
+        var indexHost = client.describeIndex(rIndexName).getHost();
+
+        var rTlsEnabled = runContext.render(tlsEnabled).as(Boolean.class).orElse(true);
+        var config = new io.pinecone.configs.PineconeConfig(
+            runContext.render(apiKey).as(String.class).orElseThrow()
+        );
+        config.setTLSEnabled(rTlsEnabled);
+        config.setHost(indexHost);
+
+        // On Linux, gRPC's default NameResolver resolves "localhost" as a Unix socket address
+        // rather than a TCP loopback address. Using forAddress(InetAddress, port) bypasses the
+        // NameResolver entirely and forces a TCP connection.
+        if (indexHost != null && indexHost.contains("localhost")) {
+            config.setCustomManagedChannel(buildTcpChannel(indexHost, rTlsEnabled));
+        }
+
+        var sdkConnection = new io.pinecone.configs.PineconeConnection(config);
+        return new Index(sdkConnection, rIndexName);
+    }
+
+    private static io.grpc.ManagedChannel buildTcpChannel(String host, boolean tlsEnabled) {
+        // Strip any scheme prefix the emulator may include in the host string
+        var stripped = host.replaceFirst("https?://", "");
+        var colon = stripped.lastIndexOf(':');
+        var port = colon >= 0 ? Integer.parseInt(stripped.substring(colon + 1)) : (tlsEnabled ? 443 : 80);
+
+        // InetSocketAddress with a numeric IP bypasses gRPC's NameResolver entirely,
+        // ensuring a TCP connection instead of a Unix socket.
+        var address = new InetSocketAddress("127.0.0.1", port);
+        var builder = NettyChannelBuilder.forAddress(address);
+        if (tlsEnabled) {
+            builder.negotiationType(NegotiationType.TLS);
+        } else {
+            builder.negotiationType(NegotiationType.PLAINTEXT);
+        }
+        return builder.build();
     }
 
     /** Converts a {@code Map<String, Object>} to a protobuf {@link Struct}, used for metadata and filter arguments. */
