@@ -83,6 +83,7 @@ public abstract class PineconeConnection extends Task {
     }
 
     protected Index getIndexConnection(RunContext runContext) throws IllegalVariableEvaluationException {
+        ensurePickFirstRegistered();
         var rIndexName = runContext.render(indexName).as(String.class).orElseThrow();
         var client = buildClient(runContext);
         var indexHost = client.describeIndex(rIndexName).getHost();
@@ -103,6 +104,27 @@ public abstract class PineconeConnection extends Task {
 
         var sdkConnection = new io.pinecone.configs.PineconeConnection(config);
         return new Index(sdkConnection, rIndexName);
+    }
+
+    // ServiceLoader may fail to discover PickFirstLoadBalancerProvider inside Kestra's plugin
+    // classloader; registering it explicitly guarantees gRPC channel creation never panics with
+    // "Could not find policy 'pick_first'". The class is in io.grpc.internal and not exposed via
+    // the public API, so reflection is used to stay compile-time clean.
+    private static void ensurePickFirstRegistered() {
+        var registry = io.grpc.LoadBalancerRegistry.getDefaultRegistry();
+        if (registry.getProvider("pick_first") != null) {
+            return;
+        }
+        try {
+            var providerClass = Class.forName(
+                "io.grpc.internal.PickFirstLoadBalancerProvider",
+                true,
+                PineconeConnection.class.getClassLoader()
+            );
+            registry.register((io.grpc.LoadBalancerProvider) providerClass.getDeclaredConstructor().newInstance());
+        } catch (Exception ignored) {
+            // best-effort; the service file in META-INF/services should cover this path
+        }
     }
 
     private static io.grpc.ManagedChannel buildTcpChannel(String host, boolean tlsEnabled) {
