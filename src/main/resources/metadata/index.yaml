@@ -1,7 +1,7 @@
 group: io.kestra.plugin.pinecone
 name: "pinecone"
 title: "Pinecone"
-description: "Pinecone plugin for Kestra"
+description: "Interact with Pinecone, a managed vector database, from your Kestra workflows. Create serverless indexes, upsert vectors, query by similarity, fetch or delete vectors by ID, and inspect index statistics."
 body: ""
 videos: []
 createdBy: "Kestra Core Team"
