@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <rect width="120" height="120" rx="24" fill="#0C1628"/>
+  <!-- Pinecone-style vector database icon: stylised cone/crystal shape -->
+  <path d="M60 15 L85 45 L75 50 L80 75 L60 105 L40 75 L45 50 L35 45 Z" fill="#4FC3A1"/>
+  <path d="M60 15 L85 45 L60 55 L35 45 Z" fill="#6DE0BD"/>
+  <path d="M60 55 L75 50 L80 75 L60 105 Z" fill="#3AA585"/>
+  <path d="M60 55 L45 50 L40 75 L60 105 Z" fill="#3AA585"/>
+</svg>

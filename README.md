@@ -18,47 +18,75 @@
 
 <br />
 
-<p align="center">
-  <a href="https://twitter.com/kestra_io" style="margin: 0 10px;">
-        <img src="https://kestra.io/twitter.svg" alt="twitter" width="35" height="25" /></a>
-  <a href="https://www.linkedin.com/company/kestra/" style="margin: 0 10px;">
-        <img src="https://kestra.io/linkedin.svg" alt="linkedin" width="35" height="25" /></a>
-  <a href="https://www.youtube.com/@kestra-io" style="margin: 0 10px;">
-        <img src="https://kestra.io/youtube.svg" alt="youtube" width="35" height="25" /></a>
-</p>
-
-<br />
-<p align="center">
-    <a href="https://go.kestra.io/video/product-overview" target="_blank">
-        <img src="https://kestra.io/startvideo.png" alt="Get started in 3 minutes with Kestra" width="640px" />
-    </a>
-</p>
-<p align="center" style="color:grey;"><i>Get started with Kestra in 3 minutes.</i></p>
-
 # Kestra Pinecone Plugin
 
-## Why
+Interact with [Pinecone](https://pinecone.io), a managed vector database, from your Kestra workflows.
 
-- What user problem does this solve? Teams need a concrete starting point for building and validating new Kestra plugins without recreating the same project scaffolding from scratch.
-- Why would a team adopt this plugin in a workflow? It gives plugin authors a ready-made reference repo they can adapt alongside their own build, test, and publishing workflow.
-- What operational/business outcome does it enable? It shortens plugin delivery time, reduces setup mistakes, and makes internal or partner plugin development more repeatable.
+## Tasks
 
-## What
+| Task | Description |
+|---|---|
+| `io.kestra.plugin.pinecone.CreateIndex` | Create a serverless Pinecone index |
+| `io.kestra.plugin.pinecone.DeleteIndex` | Delete a Pinecone index |
+| `io.kestra.plugin.pinecone.Upsert` | Upsert vectors from an inline list or an ION file |
+| `io.kestra.plugin.pinecone.Query` | Query by vector similarity (FETCH / FETCH_ONE / STORE) |
+| `io.kestra.plugin.pinecone.FetchVectors` | Fetch specific vectors by ID |
+| `io.kestra.plugin.pinecone.DeleteVectors` | Delete vectors by ID or clear a namespace |
+| `io.kestra.plugin.pinecone.DescribeIndexStats` | Describe index statistics (vector counts per namespace) |
 
-- Provides plugin components under `io.kestra.plugin.pinecone`.
-- Includes classes such as `Example`, `Trigger`.
+## Example
+
+```yaml
+id: pinecone_pipeline
+namespace: company.team
+
+tasks:
+  - id: create_index
+    type: io.kestra.plugin.pinecone.CreateIndex
+    apiKey: "{{ secret('PINECONE_API_KEY') }}"
+    indexName: my-embeddings
+    dimension: 1536
+    metric: cosine
+    cloud: aws
+    region: us-east-1
+
+  - id: upsert_vectors
+    type: io.kestra.plugin.pinecone.Upsert
+    apiKey: "{{ secret('PINECONE_API_KEY') }}"
+    indexName: my-embeddings
+    namespace: production
+    vectors:
+      - id: vec1
+        values: [0.1, 0.2, 0.3]
+        metadata:
+          source: document_a
+
+  - id: query_similar
+    type: io.kestra.plugin.pinecone.Query
+    apiKey: "{{ secret('PINECONE_API_KEY') }}"
+    indexName: my-embeddings
+    namespace: production
+    topK: 10
+    vector: [0.1, 0.2, 0.3]
+    includeMetadata: true
+    fetchType: FETCH
+```
+
+## Local Development
+
+To run integration tests locally, start the Pinecone emulator first:
+
+```bash
+docker compose -f docker-compose-ci.yml up -d
+./gradlew test
+```
 
 ## Documentation
-* Full documentation can be found under: [kestra.io/docs](https://kestra.io/docs)
-* Documentation for developing a plugin is included in the [Plugin Developer Guide](https://kestra.io/docs/plugin-developer-guide/)
 
+Full documentation: [kestra.io/docs](https://kestra.io/docs)
+
+Plugin Developer Guide: [kestra.io/docs/plugin-developer-guide](https://kestra.io/docs/plugin-developer-guide/)
 
 ## License
+
 Apache 2.0 © [Kestra Technologies](https://kestra.io)
-
-
-## Stay up to date
-
-We release new versions every month. Give the [main repository](https://github.com/kestra-io/kestra) a star to stay up to date with the latest releases and get notified about future updates.
-
-![Star the repo](https://kestra.io/star.gif)
