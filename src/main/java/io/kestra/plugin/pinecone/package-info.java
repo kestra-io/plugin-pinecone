@@ -7,7 +7,7 @@
         This plugin provides tasks to create and manage indexes, upsert vectors, query by similarity,
         fetch or delete vectors by ID, and inspect index statistics.
         """,
-    categories = PluginSubGroup.PluginCategory.AI
+    categories = {PluginSubGroup.PluginCategory.AI, PluginSubGroup.PluginCategory.DATA}
 )
 package io.kestra.plugin.pinecone;
 

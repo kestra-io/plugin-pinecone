@@ -61,7 +61,7 @@ public class CreateIndex extends PineconeConnection implements RunnableTask<Crea
     @NotNull
     @Builder.Default
     @PluginProperty(group = "main")
-    private Property<String> metric = Property.ofValue("cosine");
+    private Property<Metric> metric = Property.ofValue(Metric.COSINE);
 
     @Schema(title = "Cloud provider (aws, gcp, azure)")
     @NotNull
@@ -85,7 +85,7 @@ public class CreateIndex extends PineconeConnection implements RunnableTask<Crea
     public Output run(RunContext runContext) throws Exception {
         var rIndexName = runContext.render(indexName).as(String.class).orElseThrow();
         var rDimension = runContext.render(dimension).as(Integer.class).orElseThrow();
-        var rMetric = runContext.render(metric).as(String.class).orElseThrow();
+        var rMetric = runContext.render(metric).as(Metric.class).orElse(Metric.COSINE).name().toLowerCase();
         var rCloud = runContext.render(cloud).as(String.class).orElseThrow();
         var rRegion = runContext.render(region).as(String.class).orElseThrow();
         var rDeletionProtection = runContext.render(deletionProtection).as(String.class).orElse("disabled");
@@ -101,6 +101,10 @@ public class CreateIndex extends PineconeConnection implements RunnableTask<Crea
             .host(indexModel.getHost())
             .status(status != null && status.getState() != null ? status.getState().getValue() : null)
             .build();
+    }
+
+    public enum Metric {
+        COSINE, EUCLIDEAN, DOTPRODUCT
     }
 
     @lombok.Builder

@@ -35,13 +35,14 @@ public abstract class PineconeConnection extends Task {
 
     @Schema(title = "Pinecone API key")
     @NotNull
-    @PluginProperty(group = "connection")
+    @PluginProperty(group = "connection", secret = true)
     protected Property<String> apiKey;
 
     @Schema(
         title = "Index name",
         description = "Name of the Pinecone index to operate on."
     )
+    @NotNull
     @PluginProperty(group = "connection")
     protected Property<String> indexName;
 

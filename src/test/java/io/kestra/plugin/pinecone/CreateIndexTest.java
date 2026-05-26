@@ -25,7 +25,7 @@ public class CreateIndexTest extends PineconeTest {
             .tlsEnabled(Property.ofValue(false))
             .indexName(Property.ofValue(uniqueName))
             .dimension(Property.ofValue(DIMENSION))
-            .metric(Property.ofValue("cosine"))
+            .metric(Property.ofValue(CreateIndex.Metric.COSINE))
             .cloud(Property.ofValue("aws"))
             .region(Property.ofValue("us-east-1"))
             .build();

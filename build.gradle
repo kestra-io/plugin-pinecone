@@ -36,6 +36,16 @@ tasks.withType(JavaCompile).configureEach {
     options.compilerArgs.add("-parameters")
 }
 
+// Pinecone SDK v3.1.0 generates gRPC stubs compiled against protobuf-java 4.x, which introduces
+// com.google.protobuf.GeneratedFile (absent in 3.x). Kestra's platform BOM enforces 3.25.8,
+// which would downgrade the runtime jar and break class loading. Force 4.x here so the SDK's
+// generated proto classes can initialise correctly in both the shadow jar and test classpath.
+configurations.all {
+    resolutionStrategy {
+        force 'com.google.protobuf:protobuf-java:4.33.2'
+    }
+}
+
 dependencies {
     // Platform
     annotationProcessor enforcedPlatform("io.kestra:platform:$kestraVersion")
