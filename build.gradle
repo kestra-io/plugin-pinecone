@@ -42,7 +42,7 @@ tasks.withType(JavaCompile).configureEach {
 // generated proto classes can initialise correctly in both the shadow jar and test classpath.
 configurations.all {
     resolutionStrategy {
-        force 'com.google.protobuf:protobuf-java:4.33.2'
+        force 'com.google.protobuf:protobuf-java:4.35.0'
     }
 }
 
