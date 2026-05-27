@@ -61,7 +61,7 @@ dependencies {
     compileOnly group: "io.kestra", name: "script", version: kestraVersion
 
     // pinecone
-    implementation "io.pinecone:pinecone-client:3.1.0"
+    implementation "io.pinecone:pinecone-client:6.2.0"
 }
 
 
