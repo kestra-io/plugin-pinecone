@@ -4,7 +4,7 @@ Manage indexes, upsert and query vectors, and interact with Pinecone's managed v
 
 ## Authentication
 
-All tasks require `apiKey` (your Pinecone API key, required) and `indexName` (the index to operate on, required). Optionally set `host` to override the control-plane endpoint (default `https://api.pinecone.io`) and `tlsEnabled` (default `true`) to control gRPC encryption — set `tlsEnabled: false` when using the Pinecone local emulator. Store secrets in [secrets](https://kestra.io/docs/concepts/secret) and apply connection properties globally with [plugin defaults](https://kestra.io/docs/workflow-components/plugin-defaults).
+All tasks require `apiKey` (your Pinecone API key, required) and `indexName` (the index to operate on, required). Optionally set `host` to override the control-plane endpoint (default `https://api.pinecone.io`) and `tlsEnabled` (default `true`) to control gRPC encryption — set `tlsEnabled: false` when using the Pinecone local emulator. Store secrets in [secrets](https://kestra.io/docs/concepts/secret) and set connection properties on each task.
 
 ## Tasks
 
