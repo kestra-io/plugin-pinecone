@@ -43,6 +43,8 @@ tasks.withType(JavaCompile).configureEach {
 configurations.all {
     resolutionStrategy {
         force 'com.google.protobuf:protobuf-java:4.36.2'
+        // SEC-0369: platform BOM pins guava 33.4.8-jre, remove once it ships >= 33.7.2.
+        force 'com.google.guava:guava:33.7.2-jre'
     }
 }
 
